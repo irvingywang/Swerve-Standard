@@ -1,0 +1,31 @@
+{
+    "configurations": [
+        {
+            "name": "Default",
+            "includePath": [
+                "${workspaceFolder}${/}**",
+                "${workspaceFolder}${/}lib${/}typec-board-base${/}Core${/}Inc",
+                "${workspaceFolder}${/}lib${/}typec-board-base${/}Drivers${/}STM32F4xx_HAL_Driver${/}Inc",
+                "${workspaceFolder}${/}lib${/}typec-board-base${/}Drivers${/}STM32F4xx_HAL_Driver${/}Inc${/}Legacy",
+                "${workspaceFolder}${/}lib${/}typec-board-base${/}Middlewares${/}Third_Party${/}FreeRTOS${/}Source${/}include",
+                "${workspaceFolder}${/}lib${/}typec-board-base${/}Middlewares${/}Third_Party${/}FreeRTOS${/}Source${/}CMSIS_RTOS",
+                "${workspaceFolder}${/}lib${/}typec-board-base${/}Middlewares${/}Third_Party${/}FreeRTOS${/}Source${/}portable${/}RVDS${/}ARM_CM4F",
+                "${workspaceFolder}${/}lib${/}typec-board-base${/}Drivers${/}CMSIS${/}Device${/}ST${/}STM32F4xx${/}Include",
+                "${workspaceFolder}${/}lib${/}typec-board-base${/}Drivers${/}CMSIS${/}Include",
+                "${workspaceFolder}${/}lib${/}CMSIS-DSP${/}Include",
+                "${workspaceFolder}${/}src${/}devices${/}inc",
+                "${workspaceFolder}${/}src${/}algo${/}inc",
+                "${workspaceFolder}${/}src${/}bsp${/}inc",
+                "${workspaceFolder}${/}src${/}app${/}inc"
+            ],
+            "defines": [
+                "USE_HAL_DRIVER",
+                "STM32F407xx"
+            ],
+            "macFrameworkPath": [
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            ]
+        }
+    ],
+    "version": 4
+}

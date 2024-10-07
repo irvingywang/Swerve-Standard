@@ -1,0 +1,81 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "osx": {
+                "command": "make -j V=1"
+            },
+            "linux": {
+                "command": "make -j V=1"
+            },
+            "windows": {
+                "command": "mingw32-make -j V=1"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": {
+                "fileLocation": "absolute",
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "severity": 4,
+                    "message": 5
+                }
+            }
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "osx": {
+                "command": "git submodule update; make clean_unix"
+            },
+            "linux": {
+                "command": "git submodule update; make clean_unix"
+            },
+            "windows": {
+                "command": "git submodule update; mingw32-make clean"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "flash",
+            "type": "shell",
+            "osx": {
+                "command": "make download"
+            },
+            "linux": {
+                "command": "make download"
+            },
+            "windows": {
+                "command": "mingw32-make download_powershell"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "build and flash",
+            "type": "shell",
+            "dependsOn": [
+                "build",
+                "flash"
+            ],
+            "dependsOrder": "sequence",
+            "problemMatcher": []
+        },
+        {
+            "label": "rebuild",
+            "type": "shell",
+            "dependsOn": [
+                "clean",
+                "build"
+            ],
+            "dependsOrder": "sequence",
+            "problemMatcher": []
+        }
+    ]
+}
