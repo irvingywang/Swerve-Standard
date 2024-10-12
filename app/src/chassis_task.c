@@ -6,6 +6,7 @@
 #include "motor.h"
 #include "pid.h"
 #include "swerve_locomotion.h"
+#include "user_math.h"
 
 extern Robot_State_t g_robot_state;
 extern Remote_t g_remote;
@@ -14,6 +15,7 @@ DJI_Motor_Handle_t *g_azimuth_motors[NUMBER_OF_MODULES];
 DJI_Motor_Handle_t *g_drive_motors[NUMBER_OF_MODULES];
 swerve_constants_t g_swerve_constants;
 swerve_chassis_state_t g_chassis_state;
+float measured_angles[NUMBER_OF_MODULES];
 
 float chassis_rad;
 
@@ -92,4 +94,38 @@ void Chassis_Task_Init()
 void Chassis_Ctrl_Loop()
 {
     // Control loop for the chassis
+    for (int i = 0; i < NUMBER_OF_MODULES; i++) {
+        measured_angles[i] = DJI_Motor_Get_Absolute_Angle(g_azimuth_motors[i]);
+    }
+
+    g_chassis_state.v_x = g_robot_state.chassis.x_speed * SWERVE_MAX_SPEED;
+    g_chassis_state.v_y = g_robot_state.chassis.y_speed * SWERVE_MAX_SPEED;
+
+    if (g_robot_state.chassis.IS_SPINTOP_ENABLED) {
+        g_chassis_state.omega = Rescale_Chassis_Velocity();
+    } else {
+        g_chassis_state.omega = g_robot_state.chassis.omega * SWERVE_MAX_ANGLUAR_SPEED;
+    }
+
+    calculate_swerve_kinematics(&g_chassis_state, &g_swerve_constants);
+    optimize_module_angles(&g_chassis_state, measured_angles);
+    desaturate_wheel_speeds(&g_chassis_state, &g_swerve_constants);
+    convert_to_tps(&g_chassis_state, WHEEL_DIAMETER);
+
+    for (int i = 0; i < NUMBER_OF_MODULES; i++) {
+        DJI_Motor_Set_Angle(g_azimuth_motors[i], g_chassis_state.states[i].angle);
+        DJI_Motor_Set_Velocity(g_drive_motors[i], g_chassis_state.states[i].speed);
+    }
+}
+
+/*
+ * scale spintop omega by inverse of translation speed to prioritize translation
+ * spin_coeff = rw/(v + rw) // r = rad, w = desired omega (spin top omega), v = translational speed
+ * chassis_omega *= spin_coeff
+ */
+float Rescale_Chassis_Velocity(void) {
+    float translation_speed = sqrtf(powf(g_robot_state.chassis.x_speed, 2) + powf(g_robot_state.chassis.y_speed, 2));
+    float spin_coeff = chassis_rad * SPIN_TOP_OMEGA / (translation_speed + chassis_rad * SPIN_TOP_OMEGA);
+    float target_omega = SPIN_TOP_OMEGA * spin_coeff;
+    return target_omega;
 }

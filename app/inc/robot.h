@@ -31,15 +31,24 @@ typedef struct
 
 typedef struct
 {
-  float gimbal_pitch_angle;
-  float gimbal_yaw_angle;
+  float pitch_angle;
+  float yaw_angle;
 } Gimbal_State_t;
+
+typedef enum Fire_Mode_e
+{
+  SINGLE_FIRE,
+  BURST,
+  FULL_AUTO
+} Fire_Mode_e;
 
 typedef struct
 {
   uint8_t IS_FIRING_ENABLED;
   uint8_t IS_AUTO_AIMING_ENABLED;
   uint8_t IS_FLYWHEEL_ENABLED;
+  
+  Fire_Mode_e fire_mode;
 } Launch_State_t;
 
 typedef struct
@@ -52,13 +61,16 @@ typedef struct
   float vx_keyboard;
   float vy_keyboard;
 
+  // previous switch states
+  uint8_t prev_left_switch;
+  uint8_t prev_right_switch;
+
   // previous key states
   uint8_t prev_B;
   uint8_t prev_G;
   uint8_t prev_V;
   uint8_t prev_Z;
   uint8_t prev_Shift;
-  uint8_t prev_left_switch;
 } Input_State_t;
 
 typedef struct
