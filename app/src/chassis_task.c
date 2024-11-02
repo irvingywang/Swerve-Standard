@@ -110,7 +110,7 @@ void Chassis_Ctrl_Loop()
     swerve_calculate_kinematics(&g_chassis_state, &g_swerve_constants);
     swerve_optimize_module_angles(&g_chassis_state, measured_angles);
     swerve_desaturate_wheel_speeds(&g_chassis_state, &g_swerve_constants);
-    swerve_convert_to_tps(&g_chassis_state, WHEEL_DIAMETER);
+    swerve_convert_to_tps(&g_chassis_state, WHEEL_DIAMETER, DJI_MAX_TICKS, M3508_REDUCTION_RATIO);
 
     for (int i = 0; i < NUMBER_OF_MODULES; i++) {
         DJI_Motor_Set_Angle(g_azimuth_motors[i], g_chassis_state.states[i].angle);
