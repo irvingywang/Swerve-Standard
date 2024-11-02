@@ -107,10 +107,10 @@ void Chassis_Ctrl_Loop()
         g_chassis_state.omega = g_robot_state.chassis.omega * SWERVE_MAX_ANGLUAR_SPEED;
     }
 
-    calculate_swerve_kinematics(&g_chassis_state, &g_swerve_constants);
-    optimize_module_angles(&g_chassis_state, measured_angles);
-    desaturate_wheel_speeds(&g_chassis_state, &g_swerve_constants);
-    convert_to_tps(&g_chassis_state, WHEEL_DIAMETER);
+    swerve_calculate_kinematics(&g_chassis_state, &g_swerve_constants);
+    swerve_optimize_module_angles(&g_chassis_state, measured_angles);
+    swerve_desaturate_wheel_speeds(&g_chassis_state, &g_swerve_constants);
+    swerve_convert_to_tps(&g_chassis_state, WHEEL_DIAMETER);
 
     for (int i = 0; i < NUMBER_OF_MODULES; i++) {
         DJI_Motor_Set_Angle(g_azimuth_motors[i], g_chassis_state.states[i].angle);
