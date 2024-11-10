@@ -2,7 +2,7 @@
 #define CHASSIS_TASK_H
 
 // PHYSICAL CONSTANTS
-#define SWERVE_MAX_SPEED 1.0f          // m/s
+#define SWERVE_MAX_SPEED 0.3f          // m/s
 #define SPIN_TOP_OMEGA 1.0f             // m/s
 #define SWERVE_MAX_ANGLUAR_SPEED 3.14f // rad/s
 #define TRACK_WIDTH 0.34f              // m, measured wheel to wheel (side to side)
