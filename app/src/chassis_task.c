@@ -101,18 +101,20 @@ void Chassis_Ctrl_Loop()
     g_chassis_state.v_x = g_robot_state.chassis.x_speed * SWERVE_MAX_SPEED;
     g_chassis_state.v_y = g_robot_state.chassis.y_speed * SWERVE_MAX_SPEED;
 
-    // offset chassis orientation based on gimbal direction
-    float theta = g_robot_state.gimbal.yaw_angle;
-    g_chassis_state.v_x = g_chassis_state.v_x * cos(theta) - g_chassis_state.v_y * sin(theta);
-    g_chassis_state.v_y = g_chassis_state.v_x * sin(theta) + g_chassis_state.v_y * cos(theta);
+    // Offset chassis orientation based on gimbal direction
+    // Note: commented because currently handled in process remote input
+    // float theta = g_robot_state.gimbal.yaw_angle;
+    // g_chassis_state.v_x = g_chassis_state.v_x * cos(theta) - g_chassis_state.v_y * sin(theta);
+    // g_chassis_state.v_y = g_chassis_state.v_x * sin(theta) + g_chassis_state.v_y * cos(theta);
 
-    // if spintop enabled, chassis omega set to spintop value
+    // If spintop enabled, chassis omega set to spintop value
     if (g_robot_state.chassis.IS_SPINTOP_ENABLED) {
         //g_chassis_state.omega = Rescale_Chassis_Velocity();
     } else {
         g_chassis_state.omega = g_robot_state.chassis.omega * SWERVE_MAX_ANGLUAR_SPEED;
     }
 
+    // Calculate the kinematics of the chassis
     swerve_calculate_kinematics(&g_chassis_state, &g_swerve_constants);
     swerve_optimize_module_angles(&g_chassis_state, measured_angles);
     swerve_desaturate_wheel_speeds(&g_chassis_state, &g_swerve_constants);

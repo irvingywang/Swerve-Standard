@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "user_math.h"
+#include "rate_limiter.h"
 
 typedef enum Robot_State_e
 {
@@ -73,9 +74,11 @@ typedef struct
   uint8_t prev_Shift;
 } Input_State_t;
 
-typedef struct {
-    // 
-} Rate_limiters_t;
+typedef struct 
+{
+  rate_limiter_t controller_limit_x;
+  rate_limiter_t controller_limit_y;
+} Rate_Limiters_t;
 
 typedef struct
 {
@@ -84,6 +87,7 @@ typedef struct
   Gimbal_State_t gimbal;
   Launch_State_t launch;
   Input_State_t input;
+  Rate_Limiters_t rate_limiters;
 
   uint8_t IS_SUPER_CAPACITOR_ENABLED;
   uint8_t UI_ENABLED;

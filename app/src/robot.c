@@ -63,8 +63,9 @@ void Handle_Starting_Up_State()
     
     Remote_Init(&huart3);
 
-    rate_limiter_init(&controller_limit_x, MAX_ACCEL);
-    rate_limiter_init(&controller_limit_y, MAX_ACCEL);
+    #define MAX_ACCEL 7 // %/s^2 defined here for local context
+    rate_limiter_init(&g_robot_state.rate_limiters.controller_limit_x, MAX_ACCEL);
+    rate_limiter_init(&g_robot_state.rate_limiters.controller_limit_y, MAX_ACCEL);
 
     g_robot_state.state = DISABLED;
 }
@@ -116,8 +117,8 @@ void Process_Remote_Input()
     g_robot_state.input.vx_keyboard = ((1.0f - KEYBOARD_RAMP_COEF) * g_robot_state.input.vx_keyboard - g_remote.keyboard.A * KEYBOARD_RAMP_COEF + g_remote.keyboard.D * KEYBOARD_RAMP_COEF);
     float temp_x = g_robot_state.input.vx_keyboard + g_remote.controller.left_stick.x / REMOTE_STICK_MAX;
     float temp_y = g_robot_state.input.vy_keyboard + g_remote.controller.left_stick.y / REMOTE_STICK_MAX;
-    g_robot_state.input.vx = rate_limiter(&controller_limit_x, temp_x);
-    g_robot_state.input.vy = rate_limiter(&controller_limit_y, temp_y);
+    g_robot_state.input.vx = rate_limiter(&g_robot_state.rate_limiters.controller_limit_x, temp_x);
+    g_robot_state.input.vy = rate_limiter(&g_robot_state.rate_limiters.controller_limit_y, temp_y);
 
 
     // Calculate Gimbal Oriented Control
