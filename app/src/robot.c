@@ -11,6 +11,7 @@
 #include "supercap.h"
 #include "user_math.h"
 #include "math.h"
+#include "rate_limiter.h"
 
 Robot_State_t g_robot_state = {0};
 extern Remote_t g_remote;
@@ -19,6 +20,9 @@ extern Supercap_t g_supercap;
 extern DJI_Motor_Handle_t *g_yaw;
 
 Input_State_t g_input_state = {0};
+rate_limiter_t controller_limit_x = {0};
+rate_limiter_t controller_limit_y = {0};
+#define MAX_ACCEL 7 // %/s^2
 
 #define KEYBOARD_RAMP_COEF (0.004f)
 
@@ -39,7 +43,7 @@ void Robot_Init()
         .note_num = SYSTEM_INITIALIZING_NOTE_NUM,
     };
     Buzzer_Play_Melody(system_init_melody); // TODO: Change to non-blocking
-
+    
     // Initialize all tasks
     Robot_Tasks_Start();
 }
@@ -50,15 +54,18 @@ void Robot_Init()
 void Handle_Starting_Up_State()
 {
     // Initialize all hardware
-    Chassis_Task_Init();
-    Gimbal_Task_Init();
-    Launch_Task_Init();
-    Remote_Init(&huart3);
     CAN_Service_Init();
     Referee_System_Init(&huart1);
     Supercap_Init(&g_supercap);
+    Chassis_Task_Init();
+    Gimbal_Task_Init();
+    Launch_Task_Init();
+    
+    Remote_Init(&huart3);
 
-    // Set robot state to disabled
+    rate_limiter_init(&controller_limit_x, MAX_ACCEL);
+    rate_limiter_init(&controller_limit_y, MAX_ACCEL);
+
     g_robot_state.state = DISABLED;
 }
 
@@ -107,13 +114,19 @@ void Process_Remote_Input()
     // Process remote input
     g_robot_state.input.vy_keyboard = ((1.0f - KEYBOARD_RAMP_COEF) * g_robot_state.input.vy_keyboard + g_remote.keyboard.W * KEYBOARD_RAMP_COEF - g_remote.keyboard.S * KEYBOARD_RAMP_COEF);
     g_robot_state.input.vx_keyboard = ((1.0f - KEYBOARD_RAMP_COEF) * g_robot_state.input.vx_keyboard - g_remote.keyboard.A * KEYBOARD_RAMP_COEF + g_remote.keyboard.D * KEYBOARD_RAMP_COEF);
-    g_robot_state.input.vx = g_robot_state.input.vx_keyboard + g_remote.controller.left_stick.x / REMOTE_STICK_MAX;
-    g_robot_state.input.vy = g_robot_state.input.vy_keyboard + g_remote.controller.left_stick.y / REMOTE_STICK_MAX;
+    float temp_x = g_robot_state.input.vx_keyboard + g_remote.controller.left_stick.x / REMOTE_STICK_MAX;
+    float temp_y = g_robot_state.input.vy_keyboard + g_remote.controller.left_stick.y / REMOTE_STICK_MAX;
+    g_robot_state.input.vx = rate_limiter(&controller_limit_x, temp_x);
+    g_robot_state.input.vy = rate_limiter(&controller_limit_y, temp_y);
+
 
     // Calculate Gimbal Oriented Control
     float theta = DJI_Motor_Get_Absolute_Angle(g_yaw);
     g_robot_state.chassis.x_speed = -g_robot_state.input.vy * sin(theta) + g_robot_state.input.vx * cos(theta);
     g_robot_state.chassis.y_speed = g_robot_state.input.vy * cos(theta) + g_robot_state.input.vx * sin(theta);
+
+    g_robot_state.gimbal.yaw_angle -= (g_remote.controller.right_stick.x / 50000.0f + g_remote.mouse.x / 10000.0f);    // controller and mouse
+    g_robot_state.gimbal.pitch_angle -= (g_remote.controller.right_stick.y / 100000.0f - g_remote.mouse.y / 50000.0f);
 
     // keyboard toggles
     if (__IS_TOGGLED(g_remote.keyboard.B, g_input_state.prev_B))
