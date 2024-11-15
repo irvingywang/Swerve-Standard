@@ -1,3 +1,8 @@
+"""
+This script generates a `compile_commands.json` file for Control Template Makefile.
+This is necessary for using clangd with the Control Template project.
+"""
+
 import json
 import re
 from pathlib import Path
@@ -82,6 +87,8 @@ def generate_compile_commands(parsed_data, project_dir):
     
     # Select only the first source file (main.c)
     src_file = parsed_data["source_files"][0]
+    # tbh, it doesn't really matter which source file is chosen cause clang
+    # only needs the include directories
     
     # Define the full path for the selected source file
     full_src_path = Path(project_dir) / src_file
@@ -123,10 +130,15 @@ def main():
     parsed_data, dynamic_vars = parse_makefile(makefile_content)
     compile_commands = generate_compile_commands(parsed_data, project_dir)
 
-    with open('compile_commands.json', 'w') as f:
+    with open('compile_commandst.json', 'w') as f:
         json.dump(compile_commands, f, indent=2)
         
     print("Successfully generated compile_commands.json file.")
+    
+    print("Note: You may have to make some changes to compile_commands.json, specifically:")
+    print("\t1. Remove 'mthumb-interwork' from the c_flags list.")
+    print("\t2. Add the path to the arm-none-eabi include directory\n\t   (ex. \"-IC:/msys64/mingw64/arm-none-eabi/include\"")
+    print("This script will not add compiler flags so it should not be an issue, but you will have to specify the path.")
 
 if __name__ == "__main__":
     main()
