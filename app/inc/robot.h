@@ -73,6 +73,10 @@ typedef struct
   uint8_t prev_Shift;
 } Input_State_t;
 
+typedef struct {
+    // 
+} Rate_limiters_t;
+
 typedef struct
 {
   Robot_State_e state;

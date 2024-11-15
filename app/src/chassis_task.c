@@ -101,6 +101,12 @@ void Chassis_Ctrl_Loop()
     g_chassis_state.v_x = g_robot_state.chassis.x_speed * SWERVE_MAX_SPEED;
     g_chassis_state.v_y = g_robot_state.chassis.y_speed * SWERVE_MAX_SPEED;
 
+    // offset chassis orientation based on gimbal direction
+    float theta = g_robot_state.gimbal.yaw_angle;
+    g_chassis_state.v_x = g_chassis_state.v_x * cos(theta) - g_chassis_state.v_y * sin(theta);
+    g_chassis_state.v_y = g_chassis_state.v_x * sin(theta) + g_chassis_state.v_y * cos(theta);
+
+    // if spintop enabled, chassis omega set to spintop value
     if (g_robot_state.chassis.IS_SPINTOP_ENABLED) {
         g_chassis_state.omega = Rescale_Chassis_Velocity();
     } else {
