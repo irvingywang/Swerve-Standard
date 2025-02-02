@@ -58,8 +58,8 @@ void Handle_Starting_Up_State()
     Referee_System_Init(&huart1);
     Supercap_Init(&g_supercap);
     Chassis_Task_Init();
-    Gimbal_Task_Init();
-    Launch_Task_Init();
+    // Gimbal_Task_Init();
+    // Launch_Task_Init();
     
     Remote_Init(&huart3);
 
@@ -86,8 +86,8 @@ void Handle_Enabled_State()
         Referee_Set_Robot_State();
         Process_Remote_Input();
         Process_Chassis_Control();
-        Process_Gimbal_Control();
-        Process_Launch_Control();
+        // Process_Gimbal_Control();
+        // Process_Launch_Control();
     }
 }
 

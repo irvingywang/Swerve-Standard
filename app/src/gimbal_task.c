@@ -5,7 +5,6 @@
 #include "user_math.h"
 #include "dji_motor.h"
 #include "imu_task.h"
-#include "user_math.h"
 #include "jetson_orin.h"
 
 extern Robot_State_t g_robot_state;

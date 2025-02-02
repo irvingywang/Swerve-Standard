@@ -4,10 +4,7 @@
 #include "remote.h"
 #include "dji_motor.h"
 #include "motor.h"
-#include "pid.h"
 #include "swerve_locomotion.h"
-#include "user_math.h"
-
 
 extern Robot_State_t g_robot_state;
 extern Remote_t g_remote;
@@ -18,7 +15,7 @@ swerve_constants_t g_swerve_constants;
 swerve_chassis_state_t g_chassis_state;
 float measured_angles[NUMBER_OF_MODULES];
 
-float chassis_rad;
+float chassis_rad; //TODO init?
 
 void Chassis_Task_Init()
 {
