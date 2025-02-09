@@ -43,7 +43,7 @@ void Robot_Init()
         .note_num = SYSTEM_INITIALIZING_NOTE_NUM,
     };
     Buzzer_Play_Melody(system_init_melody); // TODO: Change to non-blocking
-    
+
     // Initialize all tasks
     Robot_Tasks_Start();
 }
@@ -58,9 +58,9 @@ void Handle_Starting_Up_State()
     Referee_System_Init(&huart1);
     Supercap_Init(&g_supercap);
     Chassis_Task_Init();
-    // Gimbal_Task_Init();
-    // Launch_Task_Init();
-    
+    //Gimbal_Task_Init();
+    Launch_Task_Init();
+
     Remote_Init(&huart3);
 
     #define MAX_ACCEL 7 // %/s^2 defined here for local context
@@ -86,8 +86,8 @@ void Handle_Enabled_State()
         Referee_Set_Robot_State();
         Process_Remote_Input();
         Process_Chassis_Control();
-        // Process_Gimbal_Control();
-        // Process_Launch_Control();
+        //Process_Gimbal_Control();
+        Process_Launch_Control();
     }
 }
 
@@ -98,6 +98,7 @@ void Handle_Enabled_State()
 void Handle_Disabled_State()
 {
     DJI_Motor_Disable_All();
+    //startFlywheel();
     //  Disable all major components
     g_robot_state.launch.IS_FLYWHEEL_ENABLED = 0;
     g_robot_state.chassis.x_speed = 0;
@@ -170,6 +171,19 @@ void Process_Remote_Input()
     else
     {
         g_robot_state.launch.IS_AUTO_AIMING_ENABLED = 0;
+    }
+
+    if (g_remote.controller.wheel < -50.0f)
+    { // dial wheel forward single fire
+        g_robot_state.launch.fire_mode = SINGLE_FIRE;
+    }
+    else if (g_remote.controller.wheel > 50.0f)
+    { // dial wheel backward burst `fire
+        g_robot_state.launch.fire_mode = FULL_AUTO;
+    }
+    else
+    { // dial wheel mid stop fire
+        g_robot_state.launch.fire_mode = NO_FIRE;
     }
 
     // cycle burst flags with keyboard

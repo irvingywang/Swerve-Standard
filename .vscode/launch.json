@@ -37,7 +37,7 @@
             "rtos": "FreeRTOS",
             "liveWatch": {
                 "enabled": true,
-                "samplesPerSecond": 4
+                "samplesPerSecond": 8
             },
             "preLaunchTask": "build" // build before debug
         }

@@ -38,18 +38,33 @@ typedef struct
 
 typedef enum Fire_Mode_e
 {
+  NO_FIRE,
   SINGLE_FIRE,
-  BURST,
-  FULL_AUTO
+  BURST_FIRE,
+  FULL_AUTO,
+  REJIGGLE, // primarily for busy mode
+  IDLE // primarily for busy mode
 } Fire_Mode_e;
+
+typedef struct Shooter_State_t
+{
+    float prev_time;
+    float prev_vel;
+    float accum_angle;
+} Shooter_State_t;
 
 typedef struct
 {
   uint8_t IS_FIRING_ENABLED;
   uint8_t IS_AUTO_AIMING_ENABLED;
   uint8_t IS_FLYWHEEL_ENABLED;
-  
-  Fire_Mode_e fire_mode;
+
+  uint8_t IS_BUSY;
+
+  Fire_Mode_e fire_mode; // requested fire mode
+  Fire_Mode_e busy_mode; // current fire mode (in progress)
+
+  Shooter_State_t shooter_state; // used for position integration
 } Launch_State_t;
 
 typedef struct
@@ -74,7 +89,7 @@ typedef struct
   uint8_t prev_Shift;
 } Input_State_t;
 
-typedef struct 
+typedef struct
 {
   rate_limiter_t controller_limit_x;
   rate_limiter_t controller_limit_y;
