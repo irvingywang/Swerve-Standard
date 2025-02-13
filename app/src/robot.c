@@ -163,6 +163,10 @@ void Process_Remote_Input()
     {
         g_robot_state.launch.IS_FIRING_ENABLED = 1;
     }
+    else
+    {
+        g_robot_state.launch.IS_FIRING_ENABLED = 0;
+    }
 
     if ((g_remote.controller.right_switch == UP) || (g_remote.mouse.right == 1)) // mouse right button auto aim
     {
