@@ -5,6 +5,7 @@
 #include "remote.h"
 #include "user_math.h"
 #include "referee_system.h"
+#include "laser.h"
 #include <stdint.h>
 
 extern Robot_State_t g_robot_state;
@@ -67,6 +68,8 @@ void Launch_Task_Init()
     g_flywheel_left = DJI_Motor_Init(&flywheel_left_config,M3508);
     g_flywheel_right = DJI_Motor_Init(&flywheel_right_config,M3508);
     g_feed_motor = DJI_Motor_Init(&feed_speed_config,M2006);
+
+    Laser_Init();
 }
 
 void Launch_Ctrl_Loop()
@@ -74,11 +77,13 @@ void Launch_Ctrl_Loop()
     if (!g_robot_state.launch.IS_FIRING_ENABLED)
     {
         stopFlywheel();
+        Laser_Off();
         g_robot_state.launch.IS_FLYWHEEL_ENABLED = 0;
         return;
     } else {
         g_robot_state.launch.IS_FLYWHEEL_ENABLED = 1;
         startFlywheel();
+        Laser_On();
     }
 
     if (g_robot_state.launch.IS_BUSY) { // check if we are in middle of a fire mode
