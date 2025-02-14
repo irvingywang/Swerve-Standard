@@ -22,7 +22,6 @@ extern DJI_Motor_Handle_t *g_yaw;
 Input_State_t g_input_state = {0};
 rate_limiter_t controller_limit_x = {0};
 rate_limiter_t controller_limit_y = {0};
-#define MAX_ACCEL 7 // %/s^2
 
 #define KEYBOARD_RAMP_COEF (0.004f)
 
@@ -58,12 +57,13 @@ void Handle_Starting_Up_State()
     Referee_System_Init(&huart1);
     Supercap_Init(&g_supercap);
     Chassis_Task_Init();
-    //Gimbal_Task_Init();
+    Gimbal_Task_Init();
     Launch_Task_Init();
 
     Remote_Init(&huart3);
 
-    #define MAX_ACCEL 7 // %/s^2 defined here for local context
+    // ! this should be 4, we just made it high to disable the rate limiter for now
+    #define MAX_ACCEL 100 // %/s^2 defined here for local context
     rate_limiter_init(&g_robot_state.rate_limiters.controller_limit_x, MAX_ACCEL);
     rate_limiter_init(&g_robot_state.rate_limiters.controller_limit_y, MAX_ACCEL);
 
@@ -86,7 +86,7 @@ void Handle_Enabled_State()
         Referee_Set_Robot_State();
         Process_Remote_Input();
         Process_Chassis_Control();
-        //Process_Gimbal_Control();
+        Process_Gimbal_Control();
         Process_Launch_Control();
     }
 }
@@ -98,7 +98,7 @@ void Handle_Enabled_State()
 void Handle_Disabled_State()
 {
     DJI_Motor_Disable_All();
-    //startFlywheel();
+
     //  Disable all major components
     g_robot_state.launch.IS_FLYWHEEL_ENABLED = 0;
     g_robot_state.chassis.x_speed = 0;

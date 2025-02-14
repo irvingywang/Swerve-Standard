@@ -15,7 +15,7 @@ swerve_constants_t g_swerve_constants;
 swerve_chassis_state_t g_chassis_state;
 float measured_angles[NUMBER_OF_MODULES];
 
-float chassis_rad; //TODO init?
+float chassis_rad = WHEEL_BASE * 1.414f; //TODO init?
 
 void Chassis_Task_Init()
 {
@@ -24,14 +24,15 @@ void Chassis_Task_Init()
         .control_mode = POSITION_VELOCITY_SERIES,
         .angle_pid =
             {
-                .kp = 200.0f,
-                .kd = 50.0f,
+                .kp = 250.0f,
+                .kd = 10.0f,
                 .output_limit = 100.0f,
             },
         .velocity_pid =
             {
                 .kp = 200.0f,
                 .ki = 0.0f,
+                .kd = 500.0f,
                 .kf = 0.0f,
                 .feedforward_limit = 5000.0f,
                 .integral_limit = 5000.0f,
@@ -107,6 +108,7 @@ void Chassis_Ctrl_Loop()
     // If spintop enabled, chassis omega set to spintop value
     if (g_robot_state.chassis.IS_SPINTOP_ENABLED) {
         //g_chassis_state.omega = Rescale_Chassis_Velocity();
+        g_chassis_state.omega = SPIN_TOP_OMEGA;
     } else {
         g_chassis_state.omega = g_robot_state.chassis.omega * SWERVE_MAX_ANGLUAR_SPEED;
     }
@@ -114,7 +116,7 @@ void Chassis_Ctrl_Loop()
     // Calculate the kinematics of the chassis
     swerve_calculate_kinematics(&g_chassis_state, &g_swerve_constants);
     swerve_optimize_module_angles(&g_chassis_state, measured_angles);
-    swerve_desaturate_wheel_speeds(&g_chassis_state, &g_swerve_constants);
+    //swerve_desaturate_wheel_speeds(&g_chassis_state, &g_swerve_constants);
     swerve_convert_to_rpm(&g_chassis_state, &g_swerve_constants);
 
     for (int i = 0; i < NUMBER_OF_MODULES; i++) {

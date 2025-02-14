@@ -1,7 +1,6 @@
 #ifndef LAUNCH_TASK_H
 #define LAUNCH_TASK_H
 
-#include <stdint.h>
 #include "dji_motor.h"
 
 #define NUM_SHOTS 8
