@@ -78,8 +78,8 @@ void Gimbal_Ctrl_Loop()
     if (g_robot_state.launch.IS_AUTO_AIMING_ENABLED) {
         if (g_orin_data.receiving.auto_aiming.yaw != 0 || g_orin_data.receiving.auto_aiming.pitch != 0)
         {
-            float imu_yaw_delta = g_imu.rad.yaw - g_orin_data.receiving.auto_aiming.yaw / 180.0f * PI;
-            float imu_pitch_delta = g_imu.rad.pitch - g_orin_data.receiving.auto_aiming.pitch / 180.0f * PI;
+            float imu_yaw_delta = g_imu.rad.yaw + g_orin_data.receiving.auto_aiming.yaw / 180.0f * PI;
+            float imu_pitch_delta = g_imu.rad.pitch + g_orin_data.receiving.auto_aiming.pitch / 180.0f * PI;
             __SLEW_RATE_LIMIT(g_robot_state.gimbal.yaw_angle, imu_yaw_delta, 0.2);
             __SLEW_RATE_LIMIT(g_robot_state.gimbal.pitch_angle, imu_pitch_delta, 0.2);
         }
