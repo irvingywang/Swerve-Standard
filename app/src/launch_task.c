@@ -1,6 +1,7 @@
 #include "launch_task.h"
 
 #include "dji_motor.h"
+#include "motor.h"
 #include "robot.h"
 #include "remote.h"
 #include "user_math.h"
@@ -96,6 +97,7 @@ void Launch_Ctrl_Loop()
             handleSingleFire();
             break;
         case BURST_FIRE:
+            handleBurst();
             break;
         case FULL_AUTO:
             handleFullAuto();
@@ -111,7 +113,7 @@ void Launch_Ctrl_Loop()
             handleSingleFire();
             break;
         case BURST_FIRE:
-            // TODO: Complete 5 burst
+            handleBurst();
             break;
         case FULL_AUTO:
             handleFullAuto();
@@ -131,6 +133,7 @@ void resetRelPos() {
 #define ticksToDegrees(ticks) ((ticks) * 360.0f / DJI_MAX_TICKS)
 #define ticksToRad(ticks) ((ticks) * 360.0f / DJI_MAX_TICKS)
 #define degreesToTicks(degrees) ((degrees) * DJI_MAX_TICKS / 360.0f)
+
 float g_curr_angle = 0;
 // TODO check if at ref
 void handleSingleFire() {
@@ -190,6 +193,27 @@ void handleFullAuto() {
         DJI_Motor_Set_Velocity(g_feed_motor, FEED_RATE);
         g_robot_state.launch.IS_BUSY = 1;
         g_robot_state.launch.busy_mode = FULL_AUTO;
+    }
+}
+
+void handleBurst() {
+    static float target_angle = 0;
+    
+    if (g_robot_state.launch.IS_BUSY) {
+        if (DJI_Motor_Get_Total_Angle(g_feed_motor) >= target_angle) {
+            DJI_Motor_Set_Control_Mode(g_feed_motor, VELOCITY_CONTROL);
+            DJI_Motor_Set_Velocity(g_feed_motor, 0);
+            g_robot_state.launch.IS_BUSY = 0;
+            g_robot_state.launch.busy_mode = IDLE;
+            rejiggle();
+        }
+    } else {
+        resetRelPos();
+        target_angle = DJI_Motor_Get_Total_Angle(g_feed_motor) + NUM_BURST * degreesToTicks(60.0f);
+        DJI_Motor_Set_Control_Mode(g_feed_motor, VELOCITY_CONTROL);
+        DJI_Motor_Set_Velocity(g_feed_motor, FEED_RATE);
+        g_robot_state.launch.IS_BUSY = 1;
+        g_robot_state.launch.busy_mode = BURST_FIRE;
     }
 }
 
