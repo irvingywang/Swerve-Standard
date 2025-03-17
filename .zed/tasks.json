@@ -1,0 +1,62 @@
+[
+  {
+    "label": "build",
+    "command": "make -j V=1",
+    "env": {},
+    "cwd": "",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always",
+    "hide": "never",
+    "shell": "system",
+    "tags": []
+  },
+  {
+    "label": "clean",
+    "command": "git submodule update && make clean_unix",
+    "env": {},
+    "cwd": "",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always",
+    "hide": "never",
+    "shell": "system",
+    "tags": []
+  },
+  {
+    "label": "flash",
+    "command": "make download",
+    "env": {},
+    "cwd": "",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always",
+    "hide": "never",
+    "shell": "system",
+    "tags": []
+  },
+  {
+    "label": "build and flash",
+    "command": "make -j V=1 && make download",
+    "env": {},
+    "cwd": "",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always",
+    "hide": "never",
+    "shell": "system",
+    "tags": []
+  },
+  {
+    "label": "rebuild",
+    "command": "git submodule update && make clean_unix && make -j V=1",
+    "env": {},
+    "cwd": "",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false,
+    "reveal": "always",
+    "hide": "never",
+    "shell": "system",
+    "tags": []
+  }
+]

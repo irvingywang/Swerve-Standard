@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "user_math.h"
+#include "rate_limiter.h"
 
 typedef enum Robot_State_e
 {
@@ -31,15 +32,39 @@ typedef struct
 
 typedef struct
 {
-  float gimbal_pitch_angle;
-  float gimbal_yaw_angle;
+  float pitch_angle;
+  float yaw_angle;
 } Gimbal_State_t;
+
+typedef enum Fire_Mode_e
+{
+  NO_FIRE,
+  SINGLE_FIRE,
+  BURST_FIRE,
+  FULL_AUTO,
+  REJIGGLE, // primarily for busy mode
+  IDLE // primarily for busy mode
+} Fire_Mode_e;
+
+typedef struct Shooter_State_t
+{
+    float prev_time;
+    float prev_vel;
+    float accum_angle;
+} Shooter_State_t;
 
 typedef struct
 {
   uint8_t IS_FIRING_ENABLED;
   uint8_t IS_AUTO_AIMING_ENABLED;
   uint8_t IS_FLYWHEEL_ENABLED;
+
+  uint8_t IS_BUSY;
+
+  Fire_Mode_e fire_mode; // requested fire mode
+  Fire_Mode_e busy_mode; // current fire mode (in progress)
+
+  Shooter_State_t shooter_state; // used for position integration
 } Launch_State_t;
 
 typedef struct
@@ -52,14 +77,23 @@ typedef struct
   float vx_keyboard;
   float vy_keyboard;
 
+  // previous switch states
+  uint8_t prev_left_switch;
+  uint8_t prev_right_switch;
+
   // previous key states
   uint8_t prev_B;
   uint8_t prev_G;
   uint8_t prev_V;
   uint8_t prev_Z;
   uint8_t prev_Shift;
-  uint8_t prev_left_switch;
 } Input_State_t;
+
+typedef struct
+{
+  rate_limiter_t controller_limit_x;
+  rate_limiter_t controller_limit_y;
+} Rate_Limiters_t;
 
 typedef struct
 {
@@ -68,6 +102,7 @@ typedef struct
   Gimbal_State_t gimbal;
   Launch_State_t launch;
   Input_State_t input;
+  Rate_Limiters_t rate_limiters;
 
   uint8_t IS_SUPER_CAPACITOR_ENABLED;
   uint8_t UI_ENABLED;
